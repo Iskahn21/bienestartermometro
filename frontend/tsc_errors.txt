@@ -1,0 +1,1 @@
+﻿src/pages/RegistroEstudiante.tsx(1,1): error TS6133: 'useState' is declared but its value is never read.

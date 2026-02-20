@@ -10,30 +10,30 @@ export function LoginPage() {
   const { login } = useAuthStore();
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const loginMutation = useMutation({
     mutationFn: () => authService.login(correo, password),
     onSuccess: (data) => {
       login(data.access_token, data.usuario);
       toast.success('¡Bienvenido!');
-      
+
       // Redirigir según rol
       if (['admin', 'psicologo', 'analista'].includes(data.usuario.rol)) {
         navigate('/dashboard');
       } else {
-        navigate('/consentimiento');
+        navigate('/');
       }
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.detail || 'Error al iniciar sesión');
     }
   });
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     loginMutation.mutate();
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
@@ -41,7 +41,7 @@ export function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-900">Iniciar Sesión</h1>
           <p className="text-gray-600 mt-2">Accede a tu cuenta</p>
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -57,7 +57,7 @@ export function LoginPage() {
                 required
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Contraseña <span className="text-red-500">*</span>
@@ -70,7 +70,7 @@ export function LoginPage() {
                 required
               />
             </div>
-            
+
             <button
               type="submit"
               disabled={loginMutation.isPending}
@@ -78,7 +78,7 @@ export function LoginPage() {
             >
               {loginMutation.isPending ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
-            
+
             <div className="text-center text-sm text-gray-600">
               ¿No tienes cuenta?{' '}
               <Link to="/" className="text-blue-600 hover:underline font-medium">
