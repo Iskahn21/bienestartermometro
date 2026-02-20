@@ -3,6 +3,7 @@ import { Landing } from './pages/Landing'
 import { RegistroEstudiantePage } from './pages/RegistroEstudiante'
 import { RegistroPersonalPage } from './pages/RegistroPersonal'
 import { LoginPage } from './pages/Login'
+import { RegistroColaboradorPage } from './pages/RegistroColaborador'
 import { ConsentimientoPage } from './pages/Consentimiento'
 import { EncuestaWHO5Page } from './pages/EncuestaWHO5'
 import { ResultadoPage } from './pages/Resultado'
@@ -17,38 +18,39 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/registro/estudiante" element={<RegistroEstudiantePage />} />
         <Route path="/registro/personal" element={<RegistroPersonalPage />} />
+        <Route path="/registro/colaborador" element={<RegistroColaboradorPage />} />
         <Route path="/login" element={<LoginPage />} />
-        
+
         <Route path="/consentimiento" element={
           <ProtectedRoute>
             <ConsentimientoPage />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/encuesta" element={
           <ProtectedRoute>
             <EncuestaWHO5Page />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/resultado/:id" element={
           <ProtectedRoute>
             <ResultadoPage />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/dashboard" element={
           <ProtectedRoute allowedRoles={['admin', 'psicologo', 'analista']}>
             <DashboardPage />
           </ProtectedRoute>
         } />
-        
+
         <Route path="/dashboard/alertas" element={
           <ProtectedRoute allowedRoles={['admin', 'psicologo']}>
             <AlertasPage />
           </ProtectedRoute>
         } />
-        
+
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

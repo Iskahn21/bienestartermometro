@@ -1,7 +1,7 @@
 import { apiClient } from '../lib/api';
 import { isFirebaseConfigured } from '../lib/firebase';
 import { firebaseAuthService } from './firebaseAuthService';
-import type { RegistroEstudiante, RegistroPersonal, Usuario } from '../types';
+import type { RegistroEstudiante, RegistroPersonal, RegistroColaborador, Usuario } from '../types';
 
 export const authService = {
   async registrarEstudiante(data: RegistroEstudiante): Promise<Usuario> {
@@ -11,7 +11,7 @@ export const authService = {
     const response = await apiClient.post('/auth/registro/estudiante', data);
     return response.data;
   },
-  
+
   async registrarPersonal(data: RegistroPersonal): Promise<Usuario> {
     if (isFirebaseConfigured()) {
       return firebaseAuthService.registrarPersonal(data);
@@ -19,7 +19,15 @@ export const authService = {
     const response = await apiClient.post('/auth/registro/personal', data);
     return response.data;
   },
-  
+
+  async registrarColaborador(data: RegistroColaborador): Promise<Usuario> {
+    if (isFirebaseConfigured()) {
+      return firebaseAuthService.registrarColaborador(data);
+    }
+    const response = await apiClient.post('/auth/registro/colaborador', data);
+    return response.data;
+  },
+
   async login(correo: string, password: string): Promise<{ access_token: string; usuario: Usuario }> {
     if (isFirebaseConfigured()) {
       return firebaseAuthService.login(correo, password);
@@ -32,7 +40,7 @@ export const authService = {
     });
     return response.data;
   },
-  
+
   async obtenerProgramas(): Promise<string[]> {
     if (isFirebaseConfigured()) {
       return firebaseAuthService.obtenerProgramas();
@@ -40,7 +48,7 @@ export const authService = {
     const response = await apiClient.get('/auth/programas');
     return response.data.programas;
   },
-  
+
   async obtenerCargos(): Promise<string[]> {
     if (isFirebaseConfigured()) {
       return firebaseAuthService.obtenerCargos();

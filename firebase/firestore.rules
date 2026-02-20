@@ -3,7 +3,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Usuarios: cada usuario solo puede leer/escribir su propio documento (uid == request.auth.uid)
     match /usuarios/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == uid;
     }
     // Encuestas: usuarios autenticados pueden leer las propias; crear las propias
     match /encuestas/{encuestaId} {

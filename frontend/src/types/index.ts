@@ -1,5 +1,5 @@
 // Tipos de usuario
-export type TipoUsuario = 'estudiante' | 'personal' | 'admin' | 'psicologo';
+export type TipoUsuario = 'estudiante' | 'personal' | 'admin' | 'psicologo' | 'colaborador';
 export type TipoDocumento = 'CC' | 'TI';
 export type Rol = 'user' | 'admin' | 'psicologo' | 'analista';
 
@@ -43,6 +43,17 @@ export interface RegistroPersonal {
   correo_institucional: string;
   password: string;
   cargo: string;
+}
+
+export interface RegistroColaborador {
+  nombres: string;
+  apellidos: string;
+  tipo_documento: TipoDocumento;
+  numero_documento: string;
+  correo_institucional: string;
+  password: string;
+  programa: string;
+  promocion: string;
 }
 
 // WHO-5

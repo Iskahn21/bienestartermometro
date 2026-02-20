@@ -7,6 +7,7 @@ import {
   where,
   orderBy,
   updateDoc,
+  collectionGroup,
 } from 'firebase/firestore';
 import { getFirebaseAuth, getFirestoreDb } from '../lib/firebase';
 import type { Metricas, Alerta } from '../types';
@@ -82,6 +83,76 @@ export const firebaseDashboardService = {
     };
   },
 
+  async obtenerDistribucionGlobal(): Promise<{ alerta_0_12: number; bajo_13_50: number; medio_51_75: number; alto_76_100: number }> {
+    const db = getFirestoreDb();
+    const encuestasSnap = await getDocs(collection(db, ENCUESTAS));
+
+    const distribucion = { alerta_0_12: 0, bajo_13_50: 0, medio_51_75: 0, alto_76_100: 0 };
+    encuestasSnap.docs.forEach((d) => {
+      const data = d.data();
+      const pf = (data.puntaje_final as number) ?? 0;
+      if (pf < 13) distribucion.alerta_0_12 += 1;
+      else if (pf < 51) distribucion.bajo_13_50 += 1;
+      else if (pf < 76) distribucion.medio_51_75 += 1;
+      else distribucion.alto_76_100 += 1;
+    });
+
+    return distribucion;
+  },
+
+  async obtenerEstadisticasPreguntas(): Promise<Record<number, { promedio: number; porcentaje: number }>> {
+    const db = getFirestoreDb();
+    const stats: Record<number, { suma: number; conteo: number }> = {
+      1: { suma: 0, conteo: 0 },
+      2: { suma: 0, conteo: 0 },
+      3: { suma: 0, conteo: 0 },
+      4: { suma: 0, conteo: 0 },
+      5: { suma: 0, conteo: 0 },
+    };
+
+    try {
+      // Intentar usar collectionGroup si los índices/reglas lo permiten
+      const respuestasSnap = await getDocs(collectionGroup(db, 'respuestas'));
+      respuestasSnap.docs.forEach((d) => {
+        const data = d.data();
+        const num = data.pregunta_numero as number;
+        const val = data.valor as number;
+        if (num && stats[num] !== undefined) {
+          stats[num].suma += val;
+          stats[num].conteo += 1;
+        }
+      });
+    } catch (error) {
+      // Si falla por permisos/índices, hacer el fallback iterando encuestas
+      console.warn("Fallo en collectionGroup, usando fallback", error);
+      const encuestasSnap = await getDocs(collection(db, ENCUESTAS));
+      const promesas = encuestasSnap.docs.map((d) => getDocs(collection(db, ENCUESTAS, d.id, 'respuestas')));
+      const resultados = await Promise.all(promesas);
+      resultados.forEach((snap) => {
+        snap.docs.forEach((d) => {
+          const data = d.data();
+          const num = data.pregunta_numero as number;
+          const val = data.valor as number;
+          if (num && stats[num] !== undefined) {
+            stats[num].suma += val;
+            stats[num].conteo += 1;
+          }
+        });
+      });
+    }
+
+    const resultadoFinal: Record<number, { promedio: number; porcentaje: number }> = {};
+    for (let i = 1; i <= 5; i++) {
+      const s = stats[i];
+      const prom = s.conteo > 0 ? s.suma / s.conteo : 0;
+      resultadoFinal[i] = {
+        promedio: prom,
+        porcentaje: Math.round((prom / 5) * 100),
+      };
+    }
+    return resultadoFinal;
+  },
+
   async obtenerAlertas(estado: string = 'all'): Promise<Alerta[]> {
     const db = getFirestoreDb();
     let q = query(collection(db, ALERTAS), orderBy('created_at', 'desc'));
@@ -127,6 +198,61 @@ export const firebaseDashboardService = {
       notas_psicologo: notas ?? null,
       atendida_por: uid,
     });
+  },
+
+  async obtenerEncuestasConUsuario(): Promise<Array<Alerta & { usuarioEmail: string }>> {
+    const db = getFirestoreDb();
+    const [encuestasSnap, usuariosSnap] = await Promise.all([
+      getDocs(collection(db, ENCUESTAS)),
+      getDocs(collection(db, USUARIOS))
+    ]);
+
+    const usuariosMap = new Map();
+    usuariosSnap.docs.forEach(doc => {
+      usuariosMap.set(doc.id, doc.data());
+    });
+
+    const encuestas: Array<Alerta & { usuarioEmail: string }> = [];
+    encuestasSnap.docs.forEach(d => {
+      const data = d.data();
+      const uid = (data.usuario_id as string) ?? '';
+      const user = usuariosMap.get(uid);
+
+      const encuestaData = alertaDocToAlerta(d.id, data as any, {
+        id: uid,
+        nombres: (user?.nombres as string) ?? 'Usuario',
+        apellidos: (user?.apellidos as string) ?? 'Desconocido',
+        tipo_documento: (user?.tipo_documento as string) ?? '',
+        numero_documento: (user?.numero_documento as string) ?? '',
+        tipo_usuario: (user?.tipo_usuario as string) ?? '',
+        programa: user?.programa,
+        cargo: user?.cargo
+      });
+
+      encuestas.push({
+        ...encuestaData,
+        usuarioEmail: (user?.correo_institucional as string) ?? 'Sin correo'
+      });
+    });
+
+    // Sort by score ascending (lowest wellbeing first)
+    return encuestas.sort((a, b) => a.puntaje - b.puntaje);
+  },
+
+  async eliminarEncuesta(id: string): Promise<void> {
+    const db = getFirestoreDb();
+    const batch = (await import('firebase/firestore')).writeBatch(db);
+
+    // Delete the survey document
+    const encuestaRef = doc(db, ENCUESTAS, id);
+    batch.delete(encuestaRef);
+
+    // Also try to delete any associated alert
+    // Note: Since alert IDs might match survey IDs or be separate, this is a best-effort if they share ID or we'd need to query. 
+    // For now assuming we just delete the survey. If alerts are separate documents linked by ID, we'd need to query them.
+    // Given the current structure, let's just delete the survey for now.
+
+    await batch.commit();
   },
 
   async exportarExcel(_tipoUsuario?: string, _programa?: string, _esAlerta?: boolean): Promise<Blob> {
