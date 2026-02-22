@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { firebaseEncuestaService } from '../services/firebaseEncuestaService';
+import { firebaseDashboardService } from '../services/firebaseDashboardService';
 import { ResultadosEstudiantes } from '../components/ResultadosEstudiantes';
 import { ListaEncuestasEstudiantes } from '../components/ListaEncuestasEstudiantes';
 
@@ -22,6 +23,51 @@ export function Landing() {
   const showEstudiante = !isAuthenticated || user?.tipo_usuario === 'estudiante';
   const showPersonal = !isAuthenticated || user?.tipo_usuario === 'personal';
   const showColaborador = !isAuthenticated || user?.tipo_usuario === 'colaborador';
+
+  const exportarEncuestasExcel = async () => {
+    const encuestas = await firebaseDashboardService.obtenerEncuestasConUsuario();
+    if (!encuestas || encuestas.length === 0) return;
+
+    // Importar xlsx dinámicamente
+    const XLSX = await import('xlsx');
+
+    const filas = encuestas.map((enc, index) => {
+      let estado = 'Desconocido';
+      if (enc.puntaje <= 50) estado = 'Bajo';
+      else if (enc.puntaje <= 75) estado = 'Medio';
+      else estado = 'Alto';
+      const fecha = enc.fecha_alerta ? new Date(enc.fecha_alerta).toLocaleDateString('es-CO') : 'N/A';
+      return {
+        Ranking: `#${index + 1}`,
+        Nombres: enc.usuario.nombres,
+        Apellidos: enc.usuario.apellidos,
+        Correo: (enc as any).usuarioEmail ?? '',
+        Puntaje: enc.puntaje,
+        Estado: estado,
+        Fecha: fecha,
+      };
+    });
+
+    const hoja = XLSX.utils.json_to_sheet(filas);
+
+    // Anchos de columna en Excel (unidades de carácter ≈ pixels / 7)
+    // Ranking(A): auto, Nombres(B): 342px≈49, Apellidos(C): 342px≈49, Correo(D): 622px≈89
+    hoja['!cols'] = [
+      { wpx: 70 },   // A - Ranking
+      { wpx: 342 },  // B - Nombres
+      { wpx: 342 },  // C - Apellidos
+      { wpx: 622 },  // D - Correo
+      { wpx: 80 },   // E - Puntaje
+      { wpx: 80 },   // F - Estado
+      { wpx: 100 },  // G - Fecha
+    ];
+
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, 'Encuestas');
+
+    const nombreArchivo = `encuestas_${new Date().toISOString().slice(0, 10)}.xlsx`;
+    XLSX.writeFile(libro, nombreArchivo);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -140,12 +186,23 @@ export function Landing() {
                   ) : (
                     <>
                       <ListaEncuestasEstudiantes />
-                      <button
-                        onClick={() => setShowList(false)}
-                        className="block w-full py-3 px-6 mt-4 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 text-center"
-                      >
-                        Volver al Gráfico
-                      </button>
+                      <div className="flex gap-3 mt-4">
+                        <button
+                          onClick={exportarEncuestasExcel}
+                          className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-center"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          </svg>
+                          Descargar Excel
+                        </button>
+                        <button
+                          onClick={() => setShowList(false)}
+                          className="flex-1 py-3 px-6 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 text-center"
+                        >
+                          Volver al Gráfico
+                        </button>
+                      </div>
                     </>
                   )}
 
