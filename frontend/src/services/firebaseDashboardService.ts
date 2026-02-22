@@ -8,6 +8,7 @@ import {
   orderBy,
   updateDoc,
   collectionGroup,
+  writeBatch,
 } from 'firebase/firestore';
 import { getFirebaseAuth, getFirestoreDb } from '../lib/firebase';
 import type { Metricas, Alerta } from '../types';
@@ -212,13 +213,19 @@ export const firebaseDashboardService = {
       usuariosMap.set(doc.id, doc.data());
     });
 
-    const encuestas: Array<Alerta & { usuarioEmail: string }> = [];
+    const encuestas: Array<Alerta & { usuarioEmail: string; carreraOCargo: string }> = [];
     encuestasSnap.docs.forEach(d => {
       const data = d.data();
       const uid = (data.usuario_id as string) ?? '';
       const user = usuariosMap.get(uid);
 
-      const encuestaData = alertaDocToAlerta(d.id, data as any, {
+      // Usar puntaje_final del documento de encuesta (no puntaje_obtenido de alertas)
+      const puntajeFinal = (data.puntaje_final as number) ?? 0;
+
+      const encuestaData = alertaDocToAlerta(d.id, {
+        ...data,
+        puntaje_obtenido: puntajeFinal,  // mapear al campo que usa alertaDocToAlerta
+      } as any, {
         id: uid,
         nombres: (user?.nombres as string) ?? 'Usuario',
         apellidos: (user?.apellidos as string) ?? 'Desconocido',
@@ -229,9 +236,13 @@ export const firebaseDashboardService = {
         cargo: user?.cargo
       });
 
+      // Carrera (estudiantes) o Cargo (personal/colaborador)
+      const carreraOCargo = (user?.programa as string) || (user?.cargo as string) || '—';
+
       encuestas.push({
         ...encuestaData,
-        usuarioEmail: (user?.correo_institucional as string) ?? 'Sin correo'
+        usuarioEmail: (user?.correo_institucional as string) ?? 'Sin correo',
+        carreraOCargo,
       });
     });
 
@@ -257,5 +268,31 @@ export const firebaseDashboardService = {
 
   async exportarExcel(_tipoUsuario?: string, _programa?: string, _esAlerta?: boolean): Promise<Blob> {
     return new Blob([''], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  },
+
+  async limpiarEncuestasHuerfanas(): Promise<number> {
+    const db = getFirestoreDb();
+    const [encuestasSnap, usuariosSnap] = await Promise.all([
+      getDocs(collection(db, ENCUESTAS)),
+      getDocs(collection(db, USUARIOS)),
+    ]);
+
+    // Construir set de UIDs válidos
+    const uidsValidos = new Set(usuariosSnap.docs.map(d => d.id));
+
+    // Identificar encuestas huérfanas (usuario_id no existe en usuarios)
+    const huerfanas = encuestasSnap.docs.filter(d => {
+      const uid = (d.data().usuario_id as string) ?? '';
+      return !uidsValidos.has(uid);
+    });
+
+    if (huerfanas.length === 0) return 0;
+
+    // Borrar en lotes de 500 (límite de Firestore)
+    const batch = writeBatch(db);
+    huerfanas.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+
+    return huerfanas.length;
   },
 };

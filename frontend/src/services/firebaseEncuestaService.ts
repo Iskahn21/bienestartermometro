@@ -38,10 +38,10 @@ function encuestaDocToEncuesta(id: string, data: Record<string, unknown>): Encue
   };
 }
 
-function clasificarBienestar(puntajeFinal: number) {
-  if (puntajeFinal < 13) return { nivel: 'Bajo bienestar', categoria: 'alerta', color: '#E53E3E', mensaje: 'Tu nivel de bienestar puede requerir atención. Te invitamos a contactar al área de Bienestar Universitario.' };
-  if (puntajeFinal < 51) return { nivel: 'Bienestar bajo', categoria: 'bajo', color: '#DD6B20', mensaje: 'Tu bienestar puede mejorar. Considera actividades que te ayuden a sentirte mejor.' };
-  if (puntajeFinal < 76) return { nivel: 'Bienestar bueno', categoria: 'medio', color: '#4A90E2', mensaje: 'Tu nivel de bienestar es bueno. Continúa cuidando tu salud emocional.' };
+function clasificarBienestar(puntajeRaw: number) {
+  if (puntajeRaw <= 3) return { nivel: 'Bajo bienestar', categoria: 'alerta', color: '#E53E3E', mensaje: 'Tu nivel de bienestar puede requerir atención. Te invitamos a contactar al área de Bienestar Universitario.' };
+  if (puntajeRaw <= 12) return { nivel: 'Bienestar bajo', categoria: 'bajo', color: '#DD6B20', mensaje: 'Tu bienestar puede mejorar. Considera actividades que te ayuden a sentirte mejor.' };
+  if (puntajeRaw <= 18) return { nivel: 'Bienestar bueno', categoria: 'medio', color: '#4A90E2', mensaje: 'Tu nivel de bienestar es bueno. Continúa cuidando tu salud emocional.' };
   return { nivel: 'Excelente bienestar', categoria: 'alto', color: '#38A169', mensaje: 'Tu nivel de bienestar es excelente. ¡Sigue así!' };
 }
 
@@ -137,7 +137,7 @@ export const firebaseEncuestaService = {
     const puntaje_final = (enc.puntaje_final as number) ?? 0;
     const es_alerta = (enc.es_alerta as boolean) ?? false;
     const completedAt = enc.completed_at != null ? String(enc.completed_at) : new Date().toISOString();
-    const clasificacion = clasificarBienestar(puntaje_final);
+    const clasificacion = clasificarBienestar(puntaje_raw);
     return {
       encuesta_id: encuestaId as number,
       fecha: completedAt,

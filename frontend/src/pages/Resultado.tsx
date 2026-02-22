@@ -6,13 +6,13 @@ import { encuestaService } from '../services/encuestaService';
 export function ResultadoPage() {
   const { id } = useParams<{ id: string }>();
   const encuestaId = id ?? '';
-  
+
   const { data: resultado, isLoading } = useQuery({
     queryKey: ['resultado', encuestaId],
     queryFn: () => encuestaService.obtenerResultado(encuestaId),
     enabled: !!encuestaId,
   });
-  
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -23,7 +23,7 @@ export function ResultadoPage() {
       </div>
     );
   }
-  
+
   if (!resultado) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -34,9 +34,9 @@ export function ResultadoPage() {
       </div>
     );
   }
-  
-  const { clasificacion, puntaje_final, es_alerta } = resultado;
-  
+
+  const { clasificacion, puntaje_raw, es_alerta } = resultado;
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -45,31 +45,31 @@ export function ResultadoPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">✓ Encuesta Completada</h1>
             <p className="text-gray-600">Gracias por participar</p>
           </div>
-          
+
           <div className="text-center mb-8">
             <div className="inline-block">
               <div className="text-5xl font-bold mb-2" style={{ color: clasificacion.color }}>
-                {puntaje_final}/100
+                {puntaje_raw}/25
               </div>
               <div className="w-64 h-4 bg-gray-200 rounded-full overflow-hidden">
-                <div 
+                <div
                   className="h-full rounded-full transition-all duration-500"
-                  style={{ 
-                    width: `${puntaje_final}%`,
+                  style={{
+                    width: `${(puntaje_raw / 25) * 100}%`,
                     backgroundColor: clasificacion.color
                   }}
                 />
               </div>
             </div>
           </div>
-          
+
           <div className={`p-6 rounded-xl mb-6`} style={{ backgroundColor: `${clasificacion.color}15` }}>
             <h2 className="text-2xl font-bold mb-2" style={{ color: clasificacion.color }}>
               {clasificacion.nivel}
             </h2>
             <p className="text-gray-700">{clasificacion.mensaje}</p>
           </div>
-          
+
           {es_alerta && (
             <div className="bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg mb-6">
               <h3 className="text-xl font-bold text-red-900 mb-3">⚠️ Recursos de Apoyo</h3>
@@ -84,30 +84,24 @@ export function ResultadoPage() {
               </ul>
             </div>
           )}
-          
+
           {resultado.cambio_significativo && (
             <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-r-lg mb-6">
               <h3 className="text-lg font-bold text-yellow-900 mb-2">Cambio Significativo Detectado</h3>
               <p className="text-gray-700">
-                Tu puntaje ha cambiado {Math.abs(resultado.cambio_significativo.diferencia)} puntos 
-                ({resultado.cambio_significativo.tipo === 'mejora' ? 'mejora' : 'empeoramiento'}) 
+                Tu puntaje ha cambiado {Math.abs(resultado.cambio_significativo.diferencia)} puntos
+                ({resultado.cambio_significativo.tipo === 'mejora' ? 'mejora' : 'empeoramiento'})
                 respecto a tu última evaluación.
               </p>
             </div>
           )}
-          
+
           <div className="flex gap-4">
             <Link
               to="/"
               className="flex-1 py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 text-center"
             >
               Volver al Inicio
-            </Link>
-            <Link
-              to="/encuesta"
-              className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 text-center"
-            >
-              Realizar Otra Encuesta
             </Link>
           </div>
         </div>

@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { authService } from '../services/authService';
-import type { RegistroColaborador } from '../types';
+
 
 const esquemaRegistro = z.object({
   nombres: z.string().min(2, 'Mínimo 2 caracteres'),
@@ -22,8 +22,9 @@ const esquemaRegistro = z.object({
     .regex(/[a-z]/, 'Debe contener minúscula')
     .regex(/[0-9]/, 'Debe contener número'),
   confirmar_password: z.string(),
-  programa: z.string().min(1, 'Selecciona un programa'),
-  promocion: z.string().regex(/^\d{4}-[12]$/, 'Formato: YYYY-1 o YYYY-2'),
+  programa: z.string().optional(),
+  cargo: z.string().min(1, 'Selecciona un cargo'),
+  promocion: z.string().optional(),
   consent_accepted: z.boolean().refine(val => val === true, {
     message: 'Debes aceptar el consentimiento para registrarte'
   }),
@@ -39,10 +40,15 @@ export function RegistroColaboradorPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: Consentimiento, 2: Formulario
 
-  const { data: programas = [] } = useQuery({
-    queryKey: ['programas'],
-    queryFn: authService.obtenerProgramas
-  });
+  const CARGOS_COLABORADOR = [
+    'Coordinador',
+    'Director',
+    'Jefe',
+    'Asistente',
+    'Rector',
+    'Profesional',
+    'Administrativo',
+  ];
 
   const registroMutation = useMutation({
     mutationFn: authService.registrarColaborador,
@@ -51,7 +57,12 @@ export function RegistroColaboradorPage() {
       navigate('/login');
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Error al registrar');
+      const msg = error?.message || error?.response?.data?.detail || 'Error al registrar';
+      let mensajeAmigable = msg;
+      if (msg.includes('email-already-in-use')) mensajeAmigable = 'Este correo ya está registrado.';
+      else if (msg.includes('weak-password')) mensajeAmigable = 'La contraseña es muy débil.';
+      else if (msg.includes('invalid-email')) mensajeAmigable = 'El correo no es válido.';
+      toast.error(mensajeAmigable);
     }
   });
 
@@ -79,12 +90,17 @@ export function RegistroColaboradorPage() {
   };
 
   const onSubmit = (data: FormData) => {
-    const { confirmar_password, ...datosRegistro } = data;
     registroMutation.mutate({
-      ...datosRegistro,
+      nombres: data.nombres,
+      apellidos: data.apellidos,
+      tipo_documento: data.tipo_documento,
+      numero_documento: data.numero_documento,
+      correo_institucional: data.correo_institucional,
+      password: data.password,
+      cargo: data.cargo,
       consent_accepted: data.consent_accepted,
-      can_contact: data.can_contact
-    } as RegistroColaborador);
+      can_contact: data.can_contact,
+    });
   };
 
   // Step 1: Consentimiento
@@ -259,38 +275,22 @@ export function RegistroColaboradorPage() {
               )}
             </div>
 
-            {/* Programa */}
+            {/* Cargo */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Programa Académico <span className="text-red-500">*</span>
+                Cargo <span className="text-red-500">*</span>
               </label>
               <select
-                {...register('programa')}
+                {...register('cargo')}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">Selecciona tu programa</option>
-                {programas.map((prog) => (
-                  <option key={prog} value={prog}>{prog}</option>
+                <option value="">Selecciona tu cargo</option>
+                {CARGOS_COLABORADOR.map((c) => (
+                  <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              {errors.programa && (
-                <p className="mt-1 text-sm text-red-600">{errors.programa.message}</p>
-              )}
-            </div>
-
-            {/* Promoción */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Promoción <span className="text-red-500">*</span>
-              </label>
-              <input
-                {...register('promocion')}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                placeholder="2024-1"
-              />
-              <p className="mt-1 text-xs text-gray-500">Formato: YYYY-1 o YYYY-2</p>
-              {errors.promocion && (
-                <p className="mt-1 text-sm text-red-600">{errors.promocion.message}</p>
+              {errors.cargo && (
+                <p className="mt-1 text-sm text-red-600">{errors.cargo.message}</p>
               )}
             </div>
 

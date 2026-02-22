@@ -66,7 +66,10 @@ export function ListaEncuestasEstudiantes() {
                                 Ranking
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Estudiante
+                                Nombre
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Carrera / Cargo
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Correo
@@ -107,6 +110,9 @@ export function ListaEncuestasEstudiantes() {
                                         <div className="text-sm font-medium text-gray-900">
                                             {encuesta.usuario.nombres} {encuesta.usuario.apellidos}
                                         </div>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {(encuesta as any).carreraOCargo ?? '—'}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {encuesta.usuarioEmail}

@@ -52,8 +52,9 @@ export interface RegistroColaborador {
   numero_documento: string;
   correo_institucional: string;
   password: string;
-  programa: string;
-  promocion: string;
+  cargo: string;
+  consent_accepted?: boolean;
+  can_contact?: boolean;
 }
 
 // WHO-5
