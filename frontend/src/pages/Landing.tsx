@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
+import { useState } from 'react';
 import { firebaseEncuestaService } from '../services/firebaseEncuestaService';
 import { firebaseDashboardService } from '../services/firebaseDashboardService';
 import { ResultadosEstudiantes } from '../components/ResultadosEstudiantes';
 import { ListaEncuestasEstudiantes } from '../components/ListaEncuestasEstudiantes';
-
 export function Landing() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const [showList, setShowList] = useState(false);
@@ -21,7 +20,7 @@ export function Landing() {
   const latestSurveyId = misEncuestas[0]?.id;
 
   const showEstudiante = !isAuthenticated || user?.tipo_usuario === 'estudiante';
-  const showPersonal = !isAuthenticated || user?.tipo_usuario === 'personal';
+  const showPersonal = isAuthenticated && user?.tipo_usuario === 'personal';
   const showColaborador = !isAuthenticated || user?.tipo_usuario === 'colaborador';
 
   const exportarEncuestasExcel = async () => {
@@ -98,11 +97,11 @@ export function Landing() {
           </p>
         </div>
 
-        <div className={`mx-auto grid gap-8 mb-12 ${!isAuthenticated ? 'lg:grid-cols-3 md:grid-cols-2 max-w-6xl' : 'max-w-xl'}`}>
+        <div className={`mx-auto mb-12 ${!isAuthenticated ? 'grid gap-8 justify-center lg:grid-cols-2 md:grid-cols-2 max-w-4xl' : 'grid gap-8 justify-center max-w-6xl w-full'}`}>
           {showEstudiante && (
             <div className={`bg-white rounded-2xl shadow-lg p-8 w-full`}>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Soy Estudiante</h2>
-              <p className="text-gray-600 mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Soy Estudiante</h2>
+              <p className="text-gray-600 mb-6 text-center">
                 Accede al sistema para completar tu evaluación de bienestar emocional
               </p>
               {!isAuthenticated ? (
@@ -152,122 +151,103 @@ export function Landing() {
 
           {showPersonal && (
             <div className={`bg-white rounded-2xl shadow-lg p-8 w-full`}>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Soy Administrativo</h2>
-              <p className="text-gray-600 mb-6">
-                Accede al sistema para completar tu evaluación de bienestar emocional
-              </p>
-              {!isAuthenticated ? (
-                <div className="space-y-3">
-                  <Link
-                    to="/registro/personal"
-                    className="block w-full py-3 px-6 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-center"
-                  >
-                    Registrarse como Administrativo
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="block w-full py-3 px-4 border border-indigo-600 text-indigo-600 rounded-lg font-medium hover:bg-indigo-50 text-center"
-                  >
-                    Ya tengo cuenta
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  {!showList ? (
-                    <>
-                      <ResultadosEstudiantes />
-                      <button
-                        onClick={() => setShowList(true)}
-                        className="block w-full py-3 px-6 mt-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-center"
-                      >
-                        Ver Lista Detallada
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <ListaEncuestasEstudiantes />
-                      <div className="flex gap-3 mt-4">
-                        <button
-                          onClick={exportarEncuestasExcel}
-                          className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-center"
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                          </svg>
-                          Descargar Excel
-                        </button>
-                        <button
-                          onClick={() => setShowList(false)}
-                          className="flex-1 py-3 px-6 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 text-center"
-                        >
-                          Volver al Gráfico
-                        </button>
-                      </div>
-                    </>
-                  )}
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Soy Administrador</h2>
 
+              {!showList ? (
+                <>
+                  <ResultadosEstudiantes />
                   <button
-                    onClick={logout}
-                    className="block w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-4 underline"
+                    onClick={() => setShowList(true)}
+                    className="block w-full py-3 px-6 mt-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-center"
                   >
-                    Cerrar Sesión
+                    Ver Lista Detallada
                   </button>
                 </>
+              ) : (
+                <>
+                  <ListaEncuestasEstudiantes />
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={exportarEncuestasExcel}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-center"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Descargar Excel
+                    </button>
+                    <button
+                      onClick={() => setShowList(false)}
+                      className="flex-1 py-3 px-6 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 text-center"
+                    >
+                      Volver al Gráfico
+                    </button>
+                  </div>
+                </>
               )}
+
+              <button
+                onClick={logout}
+                className="block w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-4 underline"
+              >
+                Cerrar Sesión
+              </button>
             </div>
           )}
 
-          {showColaborador && (
-            <div className={`bg-white rounded-2xl shadow-lg p-8 w-full`}>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Soy Colaborador</h2>
-              <p className="text-gray-600 mb-6">
-                Accede al sistema para completar tu evaluación de bienestar emocional
-              </p>
-              {!isAuthenticated ? (
-                <div className="space-y-3">
-                  <Link
-                    to="/registro/colaborador"
-                    className="block w-full py-3 px-6 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 text-center"
-                  >
-                    Registrarse como Colaborador
-                  </Link>
-                  <Link
-                    to="/login"
-                    className="block w-full py-3 px-4 border border-teal-600 text-teal-600 rounded-lg font-medium hover:bg-teal-50 text-center"
-                  >
-                    Ya tengo cuenta
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  {hasCompletedSurvey ? (
+          {
+            showColaborador && (
+              <div className={`bg-white rounded-2xl shadow-lg p-8 w-full`}>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Soy Colaborador</h2>
+                <p className="text-gray-600 mb-6 text-center">
+                  Accede al sistema para completar tu evaluación de bienestar emocional
+                </p>
+                {!isAuthenticated ? (
+                  <div className="space-y-3">
                     <Link
-                      to={`/resultado/${latestSurveyId}`}
-                      className="block w-full py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-center"
-                    >
-                      Ver Resultados de mi Encuesta
-                    </Link>
-                  ) : (
-                    <Link
-                      to="/encuesta"
+                      to="/registro/colaborador"
                       className="block w-full py-3 px-6 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 text-center"
                     >
-                      Comenzar Encuesta
+                      Registrarse como Colaborador
                     </Link>
-                  )}
-                  <button
-                    onClick={logout}
-                    className="block w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-4 underline"
-                  >
-                    Cerrar Sesión
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+                    <Link
+                      to="/login"
+                      className="block w-full py-3 px-4 border border-teal-600 text-teal-600 rounded-lg font-medium hover:bg-teal-50 text-center"
+                    >
+                      Ya tengo cuenta
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    {hasCompletedSurvey ? (
+                      <Link
+                        to={`/resultado/${latestSurveyId}`}
+                        className="block w-full py-3 px-6 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 text-center"
+                      >
+                        Ver Resultados de mi Encuesta
+                      </Link>
+                    ) : (
+                      <Link
+                        to="/encuesta"
+                        className="block w-full py-3 px-6 bg-teal-600 text-white rounded-lg font-semibold hover:bg-teal-700 text-center"
+                      >
+                        Comenzar Encuesta
+                      </Link>
+                    )}
+                    <button
+                      onClick={logout}
+                      className="block w-full text-center text-sm text-gray-500 hover:text-gray-700 mt-4 underline"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </>
+                )}
+              </div>
+            )
+          }
+        </div >
 
-        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8">
+        <div className="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 mb-8">
           <h3 className="text-xl font-bold text-gray-900 mb-4">¿Qué es el WHO-5?</h3>
           <p className="text-gray-600 mb-4">
             El Índice de Bienestar WHO-5 es un instrumento breve desarrollado por la
@@ -279,7 +259,18 @@ export function Landing() {
             necesarias para mantener tu bienestar emocional.
           </p>
         </div>
-      </div>
-    </div>
+
+        {!isAuthenticated && (
+          <div className="max-w-md mx-auto text-center mt-8">
+            <Link
+              to="/login-admin"
+              className="inline-block w-full py-3 px-6 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+            >
+              Iniciar sesión como administrador
+            </Link>
+          </div>
+        )}
+      </div >
+    </div >
   );
 }

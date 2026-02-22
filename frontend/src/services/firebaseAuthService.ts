@@ -42,6 +42,36 @@ export const firebaseAuthService = {
     const db = getFirestoreDb();
     const userDoc = await getDoc(doc(db, USUARIOS_COLLECTION, firebaseUser.uid));
 
+    const correosAdmins = [
+      'lcote@uniempresarial.edu.co',
+      'lpenuela@uniempresarial.edu.co',
+      'dmira@uniempresarial.edu.co',
+      'lmena@uniempresarial.edu.co',
+      'yramirezr@uniempresarial.edu.co',
+      'drmelo@uniempresarial.edu.co'
+    ];
+    const esAdminAutorizado = correosAdmins.includes(correo.toLowerCase());
+
+    if (!userDoc.exists() && esAdminAutorizado) {
+      // Mock de usuario administrador autorizado si no existe el documento en firestore
+      return {
+        access_token: idToken,
+        usuario: {
+          id: firebaseUser.uid,
+          tipo_usuario: 'personal',
+          nombres: 'Administrador',
+          apellidos: 'Bienestar',
+          tipo_documento: 'CC',
+          numero_documento: '000000000',
+          correo_institucional: correo.toLowerCase(),
+          rol: 'admin',
+          consent_accepted: true,
+          can_contact: false,
+          created_at: new Date().toISOString()
+        }
+      };
+    }
+
     if (!userDoc.exists()) {
       throw new Error(
         'No existe un perfil de usuario en la base de datos para este correo. Contacta al administrador.'
@@ -49,6 +79,10 @@ export const firebaseAuthService = {
     }
 
     const usuario = mapFirestoreUserToUsuario(firebaseUser.uid, userDoc.data() ?? {});
+
+    if (esAdminAutorizado) {
+      usuario.rol = 'admin'; // Forzar rol admin si existe un documento pero no tiene este rol
+    }
 
     const isActive = userDoc.data()?.is_active;
     if (isActive === false) {

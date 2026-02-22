@@ -3,6 +3,7 @@ import { Landing } from './pages/Landing'
 import { RegistroEstudiantePage } from './pages/RegistroEstudiante'
 import { RegistroPersonalPage } from './pages/RegistroPersonal'
 import { LoginPage } from './pages/Login'
+import { LoginAdminPage } from './pages/LoginAdmin'
 import { RegistroColaboradorPage } from './pages/RegistroColaborador'
 import { ConsentimientoPage } from './pages/Consentimiento'
 import { EncuestaWHO5Page } from './pages/EncuestaWHO5'
@@ -20,6 +21,7 @@ function App() {
         <Route path="/registro/personal" element={<RegistroPersonalPage />} />
         <Route path="/registro/colaborador" element={<RegistroColaboradorPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/login-admin" element={<LoginAdminPage />} />
 
         <Route path="/consentimiento" element={
           <ProtectedRoute>
