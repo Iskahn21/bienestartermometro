@@ -295,4 +295,47 @@ export const firebaseDashboardService = {
 
     return huerfanas.length;
   },
+
+  async agregarAdministrador(correo: string): Promise<void> {
+    const { initializeApp, deleteApp } = await import('firebase/app');
+    const { getAuth, createUserWithEmailAndPassword } = await import('firebase/auth');
+    const { getFirestore, doc, setDoc } = await import('firebase/firestore');
+
+    // App secundaria para no cerrar la sesión del admin actual
+    const tempApp = initializeApp({
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+      appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    }, `temp-admin-${Date.now()}`);
+
+    try {
+      const tempAuth = getAuth(tempApp);
+      const cred = await createUserWithEmailAndPassword(
+        tempAuth,
+        correo.toLowerCase().trim(),
+        'Bienestar@2026'
+      );
+      const uid = cred.user.uid;
+      const tempDb = getFirestore(tempApp);
+      await setDoc(doc(tempDb, 'usuarios', uid), {
+        tipo_usuario: 'personal',
+        rol: 'admin',
+        nombres: 'Administrador',
+        apellidos: 'Bienestar',
+        correo_institucional: correo.toLowerCase().trim(),
+        tipo_documento: 'CC',
+        numero_documento: '',
+        consent_accepted: true,
+        can_contact: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        is_active: true,
+      });
+    } finally {
+      await deleteApp(tempApp);
+    }
+  },
 };

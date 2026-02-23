@@ -1,0 +1,95 @@
+/* ============================================================
+   resultado.css
+   Estilos para la página Resultado.tsx (Pantalla de resultados de la encuesta WHO-5)
+   ============================================================ */
+
+/* Página completa con fondo gris claro y padding vertical */
+.resultado-pagina {
+  @apply min-h-screen bg-gray-50 py-12 px-4;
+}
+
+/* Estado de carga / error: centra el spinner en pantalla completa */
+.resultado-cargando {
+  @apply min-h-screen bg-gray-50 flex items-center justify-center;
+}
+
+/* Contenedor máximo de 4xl centrado horizontalmente */
+.resultado-contenedor {
+  @apply max-w-4xl mx-auto;
+}
+
+/* Tarjeta principal blanca redondeada que envuelve todo el resultado */
+.resultado-tarjeta {
+  @apply bg-white rounded-2xl shadow-lg p-8 mb-6;
+}
+
+/* Encabezado centrado con título "✓ Encuesta Completada" */
+.resultado-encabezado {
+  @apply text-center mb-8;
+}
+
+/* Título "✓ Encuesta Completada" */
+.resultado-titulo {
+  @apply text-3xl font-bold text-gray-900 mb-2;
+}
+
+/* Subtítulo "Gracias por participar" */
+.resultado-subtitulo {
+  @apply text-gray-600;
+}
+
+/* Sección centrada que contiene el número de puntaje y la barra */
+.resultado-puntaje-seccion {
+  @apply text-center mb-8;
+}
+
+/* Número grande del puntaje (color aplicado inline por diseño dinámico) */
+.resultado-puntaje-numero {
+  @apply text-5xl font-bold mb-2;
+}
+
+/* Barra de fondo gris que sirve de track para la barra de progreso */
+.resultado-barra-fondo {
+  @apply w-64 h-4 bg-gray-200 rounded-full overflow-hidden;
+}
+
+/* Barra de relleno coloreada (ancho y color aplicados inline de forma dinámica) */
+.resultado-barra-relleno {
+  @apply h-full rounded-full transition-all duration-500;
+}
+
+/* Cuadro de clasificación con fondo semitransparente (color dinámico inline) */
+.resultado-clasificacion {
+  @apply p-6 rounded-xl mb-6;
+}
+
+/* Título del nivel de bienestar dentro del cuadro de clasificación */
+.resultado-clasificacion-nivel {
+  @apply text-2xl font-bold mb-2;
+}
+
+/* Mensaje descriptivo del nivel de bienestar */
+.resultado-clasificacion-mensaje {
+  @apply text-gray-700;
+}
+
+/* Cuadro amarillo de cambio significativo detectado */
+.resultado-cambio-significativo {
+  @apply bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-r-lg mb-6;
+}
+
+/* Título del aviso de cambio significativo */
+.resultado-cambio-titulo {
+  @apply text-lg font-bold text-yellow-900 mb-2;
+}
+
+/* Contenedor de los botones de acción inferiores */
+.resultado-acciones {
+  @apply flex gap-4;
+}
+
+/* Botón "Volver al Inicio" */
+.resultado-boton-volver {
+  @apply flex-1 py-3 px-6 border border-gray-300 rounded-lg
+         text-gray-700 font-medium hover:bg-gray-50 text-center;
+}

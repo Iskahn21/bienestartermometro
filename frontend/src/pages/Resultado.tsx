@@ -15,7 +15,7 @@ export function ResultadoPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="resultado-cargando">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Cargando resultado...</p>
@@ -26,7 +26,7 @@ export function ResultadoPage() {
 
   if (!resultado) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="resultado-cargando">
         <div className="text-center">
           <p className="text-gray-600">No se pudo cargar el resultado</p>
           <Link to="/" className="text-blue-600 hover:underline mt-4 inline-block">Volver al inicio</Link>
@@ -35,25 +35,29 @@ export function ResultadoPage() {
     );
   }
 
-  const { clasificacion, puntaje_raw, es_alerta } = resultado;
+  const { clasificacion, puntaje_raw } = resultado;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">✓ Encuesta Completada</h1>
-            <p className="text-gray-600">Gracias por participar</p>
+    <div className="resultado-pagina">
+      {/* Logo Uniempresarial — esquina superior izquierda */}
+      <div className="logo-barra">
+        <img src="/logo-uniempresarial.png" alt="Logo Uniempresarial" className="logo-img" />
+      </div>
+      <div className="resultado-contenedor">
+        <div className="resultado-tarjeta">
+          <div className="resultado-encabezado">
+            <h1 className="resultado-titulo">✓ Encuesta Completada</h1>
+            <p className="resultado-subtitulo">Gracias por participar</p>
           </div>
 
-          <div className="text-center mb-8">
+          <div className="resultado-puntaje-seccion">
             <div className="inline-block">
-              <div className="text-5xl font-bold mb-2" style={{ color: clasificacion.color }}>
+              <div className="resultado-puntaje-numero" style={{ color: clasificacion.color }}>
                 {puntaje_raw}/25
               </div>
-              <div className="w-64 h-4 bg-gray-200 rounded-full overflow-hidden">
+              <div className="resultado-barra-fondo">
                 <div
-                  className="h-full rounded-full transition-all duration-500"
+                  className="resultado-barra-relleno"
                   style={{
                     width: `${(puntaje_raw / 25) * 100}%`,
                     backgroundColor: clasificacion.color
@@ -63,31 +67,16 @@ export function ResultadoPage() {
             </div>
           </div>
 
-          <div className={`p-6 rounded-xl mb-6`} style={{ backgroundColor: `${clasificacion.color}15` }}>
-            <h2 className="text-2xl font-bold mb-2" style={{ color: clasificacion.color }}>
+          <div className="resultado-clasificacion" style={{ backgroundColor: `${clasificacion.color}15` }}>
+            <h2 className="resultado-clasificacion-nivel" style={{ color: clasificacion.color }}>
               {clasificacion.nivel}
             </h2>
-            <p className="text-gray-700">{clasificacion.mensaje}</p>
+            <p className="resultado-clasificacion-mensaje">{clasificacion.mensaje}</p>
           </div>
 
-          {es_alerta && (
-            <div className="bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg mb-6">
-              <h3 className="text-xl font-bold text-red-900 mb-3">⚠️ Recursos de Apoyo</h3>
-              <p className="text-gray-700 mb-4">
-                Tu nivel de bienestar puede requerir atención. Te invitamos a contactar al área de Bienestar Universitario:
-              </p>
-              <ul className="space-y-2 text-gray-700">
-                <li>📞 Ext. 123</li>
-                <li>📧 bienestar@uniempresarial.edu.co</li>
-                <li>🏢 Edificio A, Piso 2</li>
-                <li>⏰ Horario: Lunes a Viernes 8am-5pm</li>
-              </ul>
-            </div>
-          )}
-
           {resultado.cambio_significativo && (
-            <div className="bg-yellow-50 border-l-4 border-yellow-600 p-6 rounded-r-lg mb-6">
-              <h3 className="text-lg font-bold text-yellow-900 mb-2">Cambio Significativo Detectado</h3>
+            <div className="resultado-cambio-significativo">
+              <h3 className="resultado-cambio-titulo">Cambio Significativo Detectado</h3>
               <p className="text-gray-700">
                 Tu puntaje ha cambiado {Math.abs(resultado.cambio_significativo.diferencia)} puntos
                 ({resultado.cambio_significativo.tipo === 'mejora' ? 'mejora' : 'empeoramiento'})
@@ -96,11 +85,8 @@ export function ResultadoPage() {
             </div>
           )}
 
-          <div className="flex gap-4">
-            <Link
-              to="/"
-              className="flex-1 py-3 px-6 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 text-center"
-            >
+          <div className="resultado-acciones">
+            <Link to="/" className="resultado-boton-volver">
               Volver al Inicio
             </Link>
           </div>

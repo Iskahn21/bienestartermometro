@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "./styles/formularios.css";
+@import "./styles/loginAdmin.css";
+@import "./styles/resultado.css";
+@import "./styles/landing.css";
 
 body {
   margin: 0;

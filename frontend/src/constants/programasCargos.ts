@@ -1,15 +1,11 @@
 /** Listas por defecto cuando Firestore config/programas o config/cargos no existen o están vacíos */
 export const DEFAULT_PROGRAMAS: string[] = [
   'Administración de Empresas',
-  'Administración Financiera',
-  'Contaduría Pública',
+  'Finanzas y Comercio Exterior',
+  'Marketing',
+  'Negocios Internacionales',
   'Ingeniería de Software',
   'Ingeniería Industrial',
-  'Psicología',
-  'Derecho',
-  'Comunicación Social',
-  'Diseño Gráfico',
-  'Mercadeo y Publicidad',
 ];
 
 export const DEFAULT_CARGOS: string[] = [

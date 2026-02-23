@@ -96,7 +96,7 @@ export function ResultadosEstudiantes() {
                             ];
                             const textoPregunta = textos[stat.numero - 1] || "Pregunta";
 
-                            let barColor = "bg-green-500";
+                            let barColor = "bg-yellow-400";
                             if (stat.porcentaje < 40) barColor = "bg-red-500";
                             else if (stat.porcentaje < 70) barColor = "bg-yellow-400";
 
@@ -133,9 +133,9 @@ export function ResultadosEstudiantes() {
                             <span className="text-red-700 font-bold text-xl">{Math.round((redValue / total) * 100)}%</span>
                             <span className="text-red-600 text-sm font-medium uppercase text-center mt-1">Bajo</span>
                         </div>
-                        <div className="flex-1 bg-green-100 p-3 flex flex-col items-center justify-center">
-                            <span className="text-green-700 font-bold text-xl">{Math.round((greenValue / total) * 100)}%</span>
-                            <span className="text-green-600 text-sm font-medium uppercase text-center mt-1">Alto</span>
+                        <div className="flex-1 bg-yellow-100 p-3 flex flex-col items-center justify-center">
+                            <span className="text-yellow-700 font-bold text-xl">{Math.round((greenValue / total) * 100)}%</span>
+                            <span className="text-yellow-600 text-sm font-medium uppercase text-center mt-1">Adecuado</span>
                         </div>
                     </div>
 
@@ -155,7 +155,7 @@ export function ResultadosEstudiantes() {
                                     {data.map((entry, index) => {
                                         let color = '#ccc';
                                         if (entry.name === 'Bajo Bienestar') color = '#ef4444';
-                                        if (entry.name === 'Buen Bienestar') color = '#22c55e';
+                                        if (entry.name === 'Buen Bienestar') color = '#eab308';
                                         return <Cell key={`cell-${index}`} fill={color} />;
                                     })}
                                 </Pie>
@@ -165,12 +165,12 @@ export function ResultadosEstudiantes() {
                         </ResponsiveContainer>
                     </div>
 
-                    <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200 text-center w-full">
-                        <p className="text-green-800 font-medium text-lg">
+                    <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200 text-center w-full">
+                        <p className="text-yellow-800 font-medium text-lg">
                             {porcentajeBueno}% de los estudiantes
                         </p>
-                        <p className="text-green-700">
-                            presentan un nivel de bienestar bueno o alto.
+                        <p className="text-yellow-700">
+                            presentan un nivel de bienestar adecuado o bueno.
                         </p>
                     </div>
                 </div>

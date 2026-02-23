@@ -1,0 +1,123 @@
+/* ============================================================
+   landing.css
+   Estilos para la página Landing.tsx (Página principal del sistema)
+   ============================================================ */
+
+/* Barra superior global con el logo UE — fija en todas las páginas.
+   Posicionada de forma absoluta en la esquina superior izquierda. */
+.logo-barra {
+  @apply fixed top-0 left-0 z-50 bg-white shadow-sm p-2;
+}
+
+/* Imagen del logo Uniempresarial — tamaño controlado para no dominar la UI */
+.logo-img {
+  @apply h-10 w-auto object-contain;
+}
+
+
+/* Página completa con fondo degradado azul-índigo */
+.landing-pagina {
+  @apply min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100;
+}
+
+/* Barra superior blanca con sombra que aparece si el usuario está autenticado */
+.landing-header {
+  @apply bg-white shadow-sm;
+}
+
+/* Contenido interno del header: nombre de usuario + botón de cerrar sesión */
+.landing-header-contenido {
+  @apply container mx-auto px-4 py-3 flex justify-between items-center;
+}
+
+/* Saludo del usuario en el header */
+.landing-header-saludo {
+  @apply text-gray-700 font-medium;
+}
+
+/* Botón de "Cerrar Sesión" en el header */
+.landing-header-cerrar-sesion {
+  @apply text-sm text-red-600 hover:text-red-800 font-medium hover:underline;
+}
+
+/* Contenedor general de la página con padding vertical y horizontal */
+.landing-contenido {
+  @apply container mx-auto px-4 py-16;
+}
+
+/* Sección del título principal del sistema */
+.landing-titulo-seccion {
+  @apply text-center mb-12;
+}
+
+/* Título "Sistema de Bienestar Universitario" */
+.landing-titulo {
+  @apply text-4xl md:text-5xl font-bold text-gray-900 mb-4;
+}
+
+/* Subtítulo descriptivo debajo del título principal */
+.landing-subtitulo {
+  @apply text-xl text-gray-600;
+}
+
+/* Cuadrícula de 2 columnas para las tarjetas Estudiante / Colaborador */
+.landing-grid-tarjetas {
+  @apply grid md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto;
+}
+
+/* Tarjeta individual (Estudiante o Colaborador) */
+.landing-tarjeta {
+  @apply bg-white rounded-2xl shadow-sm p-8 flex flex-col items-center;
+}
+
+/* Título de cada tarjeta (p. ej. "Soy Estudiante") */
+.landing-tarjeta-titulo {
+  @apply text-2xl font-bold text-gray-900 mb-2;
+}
+
+/* Descripción breve dentro de la tarjeta */
+.landing-tarjeta-descripcion {
+  @apply text-gray-600 text-center mb-6;
+}
+
+/* Botón principal dentro de la tarjeta (Registrarse) */
+.landing-boton-primario-estudiante {
+  @apply w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold
+         hover:bg-blue-700 text-center mb-3;
+}
+
+/* Botón secundario dentro de la tarjeta (Ya tengo cuenta) */
+.landing-boton-secundario {
+  @apply w-full py-3 px-6 border-2 rounded-lg font-semibold text-center;
+}
+
+/* Contenedor del bloque informativo ¿Qué es el WHO-5? */
+.landing-info-bloque {
+  @apply bg-white rounded-2xl shadow-sm p-8 mb-12 max-w-4xl mx-auto;
+}
+
+/* Título de la sección informativa */
+.landing-info-titulo {
+  @apply text-xl font-bold text-gray-900 mb-4;
+}
+
+/* Párrafos de texto informativo */
+.landing-info-texto {
+  @apply text-gray-600 mb-3;
+}
+
+/* Contenedor del botón de acceso para administradores */
+.landing-boton-admin-contenedor {
+  @apply max-w-md mx-auto text-center mt-8;
+}
+
+/* Botón "Iniciar sesión como administrador" */
+.landing-boton-admin {
+  @apply inline-block w-full py-3 px-6 bg-indigo-600 text-white rounded-lg
+         font-semibold hover:bg-indigo-700 transition-colors;
+}
+
+/* Texto de créditos "Desarrollado por fUSoft" */
+.landing-creditos {
+  @apply mt-3 text-sm text-gray-400;
+}

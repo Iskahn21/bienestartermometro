@@ -39,10 +39,18 @@ function encuestaDocToEncuesta(id: string, data: Record<string, unknown>): Encue
 }
 
 function clasificarBienestar(puntajeRaw: number) {
-  if (puntajeRaw <= 3) return { nivel: 'Bajo bienestar', categoria: 'alerta', color: '#E53E3E', mensaje: 'Tu nivel de bienestar puede requerir atención. Te invitamos a contactar al área de Bienestar Universitario.' };
-  if (puntajeRaw <= 12) return { nivel: 'Bienestar bajo', categoria: 'bajo', color: '#DD6B20', mensaje: 'Tu bienestar puede mejorar. Considera actividades que te ayuden a sentirte mejor.' };
-  if (puntajeRaw <= 18) return { nivel: 'Bienestar bueno', categoria: 'medio', color: '#4A90E2', mensaje: 'Tu nivel de bienestar es bueno. Continúa cuidando tu salud emocional.' };
-  return { nivel: 'Excelente bienestar', categoria: 'alto', color: '#38A169', mensaje: 'Tu nivel de bienestar es excelente. ¡Sigue así!' };
+  if (puntajeRaw <= 12) return {
+    nivel: 'Bajo bienestar',
+    categoria: 'bajo',
+    color: '#E53E3E',
+    mensaje: '¡Gracias por participar! Tus resultados indican que actualmente cuentas con un nivel bajo de bienestar emocional. Esto no significa que estés exento de atravesar momentos de estrés o dificultad. Te invitamos a seguir cuidando de ti y a utilizar los servicios de orientación que ofrecemos desde Bienestar Universitario como espacios de prevención y autocuidado, puedes acercarte y hablar con nuestro personal.',
+  };
+  return {
+    nivel: 'Bienestar adecuado',
+    categoria: 'adecuado',
+    color: '#DD6B20',
+    mensaje: '¡Gracias por participar! Tus resultados indican que actualmente cuentas con un nivel adecuado de bienestar emocional. Esto no significa que estés exento de atravesar momentos de estrés o dificultad. Te invitamos a seguir cuidando de ti y a utilizar los servicios de orientación que ofrecemos desde Bienestar Universitario como espacios de prevención y autocuidado.',
+  };
 }
 
 export const firebaseEncuestaService = {

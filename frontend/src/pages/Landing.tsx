@@ -9,6 +9,9 @@ import { ListaEncuestasEstudiantes } from '../components/ListaEncuestasEstudiant
 export function Landing() {
   const { isAuthenticated, user, logout } = useAuthStore();
   const [showList, setShowList] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [nuevoAdminEmail, setNuevoAdminEmail] = useState('');
+  const [agregandoAdmin, setAgregandoAdmin] = useState(false);
 
   const { data: misEncuestas = [] } = useQuery({
     queryKey: ['misEncuestas', user?.id],
@@ -68,8 +71,35 @@ export function Landing() {
     XLSX.writeFile(libro, nombreArchivo);
   };
 
+  const agregarAdmin = async () => {
+    if (!nuevoAdminEmail.trim()) return;
+    const { toast } = await import('sonner');
+    setAgregandoAdmin(true);
+    try {
+      await firebaseDashboardService.agregarAdministrador(nuevoAdminEmail);
+      toast.success(`Administrador ${nuevoAdminEmail} agregado exitosamente.`);
+      setNuevoAdminEmail('');
+      setShowAdminModal(false);
+    } catch (e: any) {
+      const msg = e?.message ?? '';
+      if (msg.includes('email-already-in-use')) toast.error('Ese correo ya está registrado.');
+      else toast.error('Error al agregar administrador: ' + msg);
+    } finally {
+      setAgregandoAdmin(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="landing-pagina">
+      {/* Logo Uniempresarial — esquina superior izquierda, visible en toda la página */}
+      <div className="logo-barra">
+        <img
+          src="/logo-uniempresarial.png"
+          alt="Logo Uniempresarial"
+          className="logo-img"
+        />
+      </div>
+
       {/* Header para usuarios autenticados */}
       {isAuthenticated && user && (
         <div className="bg-white shadow-sm">
@@ -149,6 +179,41 @@ export function Landing() {
             </div>
           )}
 
+          {/* Modal Agregar Administrador */}
+          {showAdminModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+              <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Agregar Administrador</h3>
+                <p className="text-sm text-gray-500 mb-4">
+                  El nuevo administrador podrá iniciar sesión con la contraseña institucional.
+                </p>
+                <input
+                  type="email"
+                  value={nuevoAdminEmail}
+                  onChange={e => setNuevoAdminEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && agregarAdmin()}
+                  placeholder="correo@uniempresarial.edu.co"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 mb-4"
+                />
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setShowAdminModal(false); setNuevoAdminEmail(''); }}
+                    className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={agregarAdmin}
+                    disabled={agregandoAdmin || !nuevoAdminEmail.trim()}
+                    className="flex-1 py-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    {agregandoAdmin ? 'Agregando...' : 'Agregar'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {showPersonal && (
             <div className={`bg-white rounded-2xl shadow-lg p-8 w-full`}>
               <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center">Soy Administrador</h2>
@@ -161,6 +226,12 @@ export function Landing() {
                     className="block w-full py-3 px-6 mt-4 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 text-center"
                   >
                     Ver Lista Detallada
+                  </button>
+                  <button
+                    onClick={() => setShowAdminModal(true)}
+                    className="block w-full py-3 px-6 mt-2 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 text-center"
+                  >
+                    ➕ Agregar Administrador
                   </button>
                 </>
               ) : (
@@ -268,6 +339,7 @@ export function Landing() {
             >
               Iniciar sesión como administrador
             </Link>
+            <p className="mt-3 text-sm text-gray-400">Desarrollado por <span className="font-semibold text-gray-500">fUSoft</span></p>
           </div>
         )}
       </div >

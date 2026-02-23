@@ -12,7 +12,7 @@ const esquemaRegistro = z.object({
   nombres: z.string().min(2, 'Mínimo 2 caracteres'),
   apellidos: z.string().min(2, 'Mínimo 2 caracteres'),
   tipo_documento: z.enum(['CC', 'TI']),
-  numero_documento: z.string().min(6, 'Documento inválido'),
+  numero_documento: z.string().min(10, 'Mínimo 10 dígitos'),
   correo_institucional: z.string()
     .email('Correo inválido')
     .endsWith('@uniempresarial.edu.co', 'Debe ser correo institucional (@uniempresarial.edu.co)'),

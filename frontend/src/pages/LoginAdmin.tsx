@@ -4,8 +4,11 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { authService } from '../services/authService';
 import { useAuthStore } from '../stores/authStore';
+import { getFirestoreDb } from '../lib/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
-const CORREOS_PERMITIDOS = [
+// Lista de respaldo (correos que ya tenían cuenta antes del sistema dinámico)
+const CORREOS_LEGACY = [
     'lcote@uniempresarial.edu.co',
     'lpenuela@uniempresarial.edu.co',
     'dmira@uniempresarial.edu.co',
@@ -13,6 +16,22 @@ const CORREOS_PERMITIDOS = [
     'yramirezr@uniempresarial.edu.co',
     'drmelo@uniempresarial.edu.co'
 ];
+
+async function esAdminAutorizado(correo: string): Promise<boolean> {
+    if (CORREOS_LEGACY.includes(correo)) return true;
+    try {
+        const db = getFirestoreDb();
+        const q = query(
+            collection(db, 'usuarios'),
+            where('correo_institucional', '==', correo),
+            where('rol', '==', 'admin')
+        );
+        const snap = await getDocs(q);
+        return !snap.empty;
+    } catch {
+        return false;
+    }
+}
 
 export function LoginAdminPage() {
     const navigate = useNavigate();
@@ -31,8 +50,6 @@ export function LoginAdminPage() {
         onSuccess: (data) => {
             login(data.access_token, data.usuario);
             toast.success('¡Bienvenido Administrador!');
-
-            // Redirigir a la vista principal donde está la tarjeta de Administrador
             navigate('/');
         },
         onError: (error: any) => {
@@ -40,13 +57,12 @@ export function LoginAdminPage() {
         }
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
         const correoNormalizado = correo.trim().toLowerCase();
 
-        // Validación estricta solicitada de correos y contraseña
-        if (!CORREOS_PERMITIDOS.includes(correoNormalizado)) {
+        const autorizado = await esAdminAutorizado(correoNormalizado);
+        if (!autorizado) {
             toast.error('Acceso denegado: Correo no autorizado.');
             return;
         }
@@ -60,58 +76,65 @@ export function LoginAdminPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-            <div className="max-w-md w-full">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Iniciar Sesión Administrador</h1>
-                    <p className="text-gray-600 mt-2">Acceso restringido para personal autorizado</p>
-                </div>
+        <>
+            {/* Logo Uniempresarial — esquina superior izquierda */}
+            <div className="logo-barra">
+                <img src="/logo-uniempresarial.png" alt="Logo Uniempresarial" className="logo-img" />
+            </div>
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Correo Institucional <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={correo}
-                                onChange={(e) => setCorreo(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="usuario@uniempresarial.edu.co"
-                                required
-                            />
-                        </div>
+            <div className="login-admin-pagina">
+                <div className="login-admin-contenedor">
+                    <div className="login-admin-encabezado">
+                        <h1 className="login-admin-titulo">Iniciar Sesión Administrador</h1>
+                        <p className="login-admin-subtitulo">Acceso restringido para personal autorizado</p>
+                    </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Contraseña <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                required
-                            />
-                        </div>
+                    <div className="login-admin-tarjeta">
+                        <form onSubmit={handleSubmit} className="login-admin-formulario">
+                            <div>
+                                <label className="login-admin-etiqueta">
+                                    Correo Institucional <span className="texto-requerido">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    value={correo}
+                                    onChange={(e) => setCorreo(e.target.value)}
+                                    className="login-admin-input"
+                                    placeholder="usuario@uniempresarial.edu.co"
+                                    required
+                                />
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={loginMutation.isPending}
-                            className="w-full py-3 px-6 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed"
-                        >
-                            {loginMutation.isPending ? 'Validando...' : 'Iniciar Sesión'}
-                        </button>
+                            <div>
+                                <label className="login-admin-etiqueta">
+                                    Contraseña <span className="texto-requerido">*</span>
+                                </label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="login-admin-input"
+                                    required
+                                />
+                            </div>
 
-                        <div className="text-center mt-4">
-                            <Link to="/" className="text-sm text-gray-500 hover:text-gray-700 underline">
-                                Volver a la página principal
-                            </Link>
-                        </div>
-                    </form>
+                            <button
+                                type="submit"
+                                disabled={loginMutation.isPending}
+                                className="login-admin-boton"
+                            >
+                                {loginMutation.isPending ? 'Validando...' : 'Iniciar Sesión'}
+                            </button>
+
+                            <div className="login-admin-enlace-volver">
+                                <Link to="/" className="login-admin-enlace-texto">
+                                    Volver a la página principal
+                                </Link>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

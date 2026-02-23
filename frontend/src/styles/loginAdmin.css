@@ -1,0 +1,65 @@
+/* ============================================================
+   loginAdmin.css
+   Estilos para la página LoginAdmin.tsx (Inicio de sesión de Administradores)
+   ============================================================ */
+
+/* Página completa: centra verticalmente el formulario sobre fondo gris claro */
+.login-admin-pagina {
+  @apply min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4;
+}
+
+/* Contenedor estrecho que agrupa título + tarjeta del formulario */
+.login-admin-contenedor {
+  @apply max-w-md w-full;
+}
+
+/* Sección del encabezado: título y subtítulo centrados */
+.login-admin-encabezado {
+  @apply text-center mb-8;
+}
+
+/* Título principal "Iniciar Sesión Administrador" */
+.login-admin-titulo {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+/* Subtítulo descriptivo debajo del título */
+.login-admin-subtitulo {
+  @apply text-gray-600 mt-2;
+}
+
+/* Tarjeta blanca redondeada que contiene el formulario */
+.login-admin-tarjeta {
+  @apply bg-white rounded-2xl shadow-sm border border-gray-200 p-8;
+}
+
+/* Layout vertical del formulario con separación entre campos */
+.login-admin-formulario {
+  @apply space-y-6;
+}
+
+/* Etiqueta de cada campo (Correo, Contraseña) */
+.login-admin-etiqueta {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+/* Input de texto: correo institucional y contraseña */
+.login-admin-input {
+  @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* Botón principal de "Iniciar Sesión" */
+.login-admin-boton {
+  @apply w-full py-3 px-6 bg-indigo-600 text-white rounded-lg font-semibold
+         hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed;
+}
+
+/* Enlace de volver a la página principal */
+.login-admin-enlace-volver {
+  @apply text-center mt-4;
+}
+
+/* Texto del enlace para volver */
+.login-admin-enlace-texto {
+  @apply text-sm text-gray-500 hover:text-gray-700 underline;
+}
